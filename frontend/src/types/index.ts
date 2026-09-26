@@ -105,10 +105,19 @@ export interface Stats {
 
 export interface HistoriqueEntry {
   id: number;
-  entite_type: string;
+  entite_type: 'projet' | 'action';
   entite_id: number;
-  action: string;
+  action: 'create' | 'update' | 'delete' | 'archive';
+  action_label: string;
   champs_modifies: Record<string, [unknown, unknown]> | null;
   auteur: string;
   timestamp: string;
+  libelle: string | null;
+  projet_id: number | null;
+  projet_nom: string | null;
+}
+
+export interface RechercheResultats {
+  projets: Projet[];
+  actions: (Action & { projet_nom: string; projet_equipe: Equipe })[];
 }

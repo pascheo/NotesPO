@@ -7,6 +7,7 @@ import type {
   HistoriqueEntry,
   Projet,
   ProjetDetail,
+  RechercheResultats,
   Stats,
 } from '../types';
 
@@ -64,6 +65,32 @@ export const dependancesApi = {
 
 export const statsApi = {
   get: () => api.get<Stats>('/stats').then((r) => r.data),
+};
+
+export const rechercheApi = {
+  chercher: (q: string) =>
+    api.get<RechercheResultats>('/recherche', { params: { q } }).then((r) => r.data),
+};
+
+export const exportApi = {
+  telechargerProjets: async (equipe?: string) => {
+    const response = await api.get('/export/projets', {
+      params: equipe ? { equipe } : {},
+      responseType: 'blob',
+    });
+    const disposition = response.headers['content-disposition'] as string | undefined;
+    const match = disposition?.match(/filename="(.+)"/);
+    const nomFichier = match?.[1] || 'export_projets.xlsx';
+
+    const url = URL.createObjectURL(response.data as Blob);
+    const lien = document.createElement('a');
+    lien.href = url;
+    lien.download = nomFichier;
+    document.body.appendChild(lien);
+    lien.click();
+    lien.remove();
+    URL.revokeObjectURL(url);
+  },
 };
 
 export default api;

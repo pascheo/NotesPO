@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import RechercheGlobale from './RechercheGlobale.vue';
+
 const liens = [
   { to: '/synthese', label: 'Vue Synthétique', icone: '📊' },
   { to: '/kanban', label: 'Kanban', icone: '🗂️' },
   { to: '/gantt', label: 'Planning Gantt', icone: '📅' },
+  { to: '/historique', label: 'Historique', icone: '🕒' },
 ];
 </script>
 
@@ -11,6 +14,9 @@ const liens = [
     <div class="border-b border-surface-border px-5 py-5">
       <h1 class="text-sm font-semibold tracking-wide text-slate-100">Suivi de Projets</h1>
       <p class="mt-1 text-xs text-slate-500">DSI · Conseil Départemental 78</p>
+    </div>
+    <div class="border-b border-surface-border px-3 py-3">
+      <RechercheGlobale />
     </div>
     <nav class="flex-1 space-y-1 px-3 py-4">
       <router-link

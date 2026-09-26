@@ -6,6 +6,7 @@ import { EQUIPES, type Equipe } from '../types';
 import TagEquipe from '../components/TagEquipe.vue';
 import BarreProgression from '../components/BarreProgression.vue';
 import ModalNouveauProjet from '../components/ModalNouveauProjet.vue';
+import { exportApi } from '../api/client';
 import { classeEtat, formatDate, joursRestants } from '../utils/format';
 
 const store = useProjetsStore();
@@ -14,6 +15,18 @@ const router = useRouter();
 const filtreEquipe = ref<Equipe | ''>('');
 const tri = ref<'deadline' | 'charge' | 'progression'>('deadline');
 const modalOuvert = ref(false);
+const exportEnCours = ref(false);
+
+async function exporterExcel() {
+  exportEnCours.value = true;
+  try {
+    await exportApi.telechargerProjets(filtreEquipe.value || undefined);
+  } catch (e) {
+    store.erreur = "Impossible de générer l'export Excel.";
+  } finally {
+    exportEnCours.value = false;
+  }
+}
 
 async function charger() {
   await Promise.all([
@@ -61,12 +74,21 @@ const cartes = computed(() => [
         <h1 class="text-xl font-semibold text-slate-100">Vue Synthétique</h1>
         <p class="text-sm text-slate-500">Point hebdomadaire des projets et actions</p>
       </div>
-      <button
-        class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
-        @click="modalOuvert = true"
-      >
-        + Nouveau projet
-      </button>
+      <div class="flex gap-2">
+        <button
+          class="rounded-lg border border-surface-border bg-surface-card px-4 py-2 text-sm font-medium text-slate-200 hover:bg-surface-raised disabled:opacity-50"
+          :disabled="exportEnCours"
+          @click="exporterExcel"
+        >
+          {{ exportEnCours ? 'Export…' : `⬇️ Exporter Excel${filtreEquipe ? ' (' + filtreEquipe + ')' : ''}` }}
+        </button>
+        <button
+          class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-500"
+          @click="modalOuvert = true"
+        >
+          + Nouveau projet
+        </button>
+      </div>
     </div>
 
     <p v-if="store.erreur" class="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
