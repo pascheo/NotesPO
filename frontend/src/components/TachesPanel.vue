@@ -4,6 +4,11 @@ import { agentsApi, tachesApi } from '../api/client';
 import { ETATS, type Agent, type Etat, type Tache } from '../types';
 import { classeEtat, formatDate, joursRestants } from '../utils/format';
 
+const props = defineProps<{ compact?: boolean }>();
+
+const afficherNotes = ref(!props.compact);
+const afficherFiltres = ref(!props.compact);
+
 const taches = ref<Tache[]>([]);
 const agents = ref<Agent[]>([]);
 const chargement = ref(true);
@@ -89,6 +94,8 @@ const tachesAffichees = computed(() =>
   masquerTerminees.value ? taches.value.filter((t) => t.etat !== 'Terminé') : taches.value
 );
 
+const nbColonnes = computed(() => (props.compact ? 5 : 7));
+
 defineExpose({ charger });
 </script>
 
@@ -124,7 +131,15 @@ defineExpose({ charger });
           {{ creationEnCours ? 'Ajout…' : '+ Ajouter' }}
         </button>
       </form>
-      <div class="mt-2">
+      <button
+        v-if="!afficherNotes"
+        type="button"
+        class="mt-2 text-xs text-blue-400 hover:underline"
+        @click="afficherNotes = true"
+      >
+        + Ajouter une note
+      </button>
+      <div v-else class="mt-2">
         <input
           v-model="nouvelleTache.notes"
           type="text"
@@ -135,17 +150,27 @@ defineExpose({ charger });
     </div>
 
     <div class="mb-3 flex flex-wrap items-center gap-3">
-      <select v-model="filtreAssignee" class="filtre" @change="charger">
-        <option value="">Tous les assignés</option>
-        <option v-for="a in agents" :key="a.id" :value="a.nom">{{ a.nom }}</option>
-      </select>
-      <select v-model="filtreEtat" class="filtre" @change="charger">
-        <option value="">Tous les états</option>
-        <option v-for="e in ETATS.filter((e) => e !== 'En retard')" :key="e" :value="e">{{ e }}</option>
-      </select>
+      <button
+        v-if="!afficherFiltres"
+        type="button"
+        class="text-xs text-blue-400 hover:underline"
+        @click="afficherFiltres = true"
+      >
+        Filtrer…
+      </button>
+      <template v-else>
+        <select v-model="filtreAssignee" class="filtre" @change="charger">
+          <option value="">Tous les assignés</option>
+          <option v-for="a in agents" :key="a.id" :value="a.nom">{{ a.nom }}</option>
+        </select>
+        <select v-model="filtreEtat" class="filtre" @change="charger">
+          <option value="">Tous les états</option>
+          <option v-for="e in ETATS.filter((e) => e !== 'En retard')" :key="e" :value="e">{{ e }}</option>
+        </select>
+      </template>
       <label class="flex items-center gap-2 text-sm text-slate-400">
         <input type="checkbox" v-model="masquerTerminees" class="accent-blue-500" />
-        Masquer les tâches terminées
+        Masquer les terminées
       </label>
     </div>
 
@@ -155,8 +180,8 @@ defineExpose({ charger });
           <tr>
             <th class="px-4 py-3">Sujet</th>
             <th class="px-4 py-3">Assigné à</th>
-            <th class="px-4 py-3">Notes</th>
-            <th class="px-4 py-3">Ouverture</th>
+            <th v-if="!props.compact" class="px-4 py-3">Notes</th>
+            <th v-if="!props.compact" class="px-4 py-3">Ouverture</th>
             <th class="px-4 py-3">Échéance</th>
             <th class="px-4 py-3">État</th>
             <th class="px-4 py-3"></th>
@@ -164,10 +189,10 @@ defineExpose({ charger });
         </thead>
         <tbody class="divide-y divide-surface-border bg-surface-card">
           <tr v-if="chargement">
-            <td colspan="7" class="px-4 py-6 text-center text-slate-500">Chargement…</td>
+            <td :colspan="nbColonnes" class="px-4 py-6 text-center text-slate-500">Chargement…</td>
           </tr>
           <tr v-else-if="tachesAffichees.length === 0">
-            <td colspan="7" class="px-4 py-6 text-center text-slate-500">Aucune tâche.</td>
+            <td :colspan="nbColonnes" class="px-4 py-6 text-center text-slate-500">Aucune tâche.</td>
           </tr>
           <tr v-for="t in tachesAffichees" :key="t.id" :class="{ 'opacity-50': t.etat === 'Terminé' }">
             <td class="px-4 py-3">
@@ -188,7 +213,7 @@ defineExpose({ charger });
                 <option v-for="a in agents" :key="a.id" :value="a.nom">{{ a.nom }}</option>
               </select>
             </td>
-            <td class="px-4 py-3 max-w-xs">
+            <td v-if="!props.compact" class="px-4 py-3 max-w-xs">
               <input
                 type="text"
                 class="input-inline"
@@ -197,7 +222,9 @@ defineExpose({ charger });
                 @change="majTache(t, { notes: ($event.target as HTMLInputElement).value })"
               />
             </td>
-            <td class="px-4 py-3 whitespace-nowrap text-slate-400">{{ formatDate(t.date_ouverture) }}</td>
+            <td v-if="!props.compact" class="px-4 py-3 whitespace-nowrap text-slate-400">
+              {{ formatDate(t.date_ouverture) }}
+            </td>
             <td class="px-4 py-3 whitespace-nowrap">
               <input
                 type="date"

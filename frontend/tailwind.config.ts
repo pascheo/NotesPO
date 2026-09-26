@@ -7,10 +7,10 @@ export default {
     extend: {
       colors: {
         surface: {
-          DEFAULT: '#0f1115',
-          raised: '#161922',
-          card: '#1c202b',
-          border: '#2a2f3c',
+          DEFAULT: '#1a1d24',
+          raised: '#22262f',
+          card: '#2a2f3a',
+          border: '#3d4453',
         },
         equipe: {
           infrastructure: '#FF6B6B',
