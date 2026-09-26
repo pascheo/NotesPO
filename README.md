@@ -12,7 +12,21 @@ SQLite embarquée, aucune dépendance cloud.
 - **Backend** : Express.js + `better-sqlite3`, API REST
 - **Frontend** : Vue 3 + TypeScript + Vite + Tailwind CSS (thème sombre), Pinia, Vue Router
 
-## Démarrage rapide
+## Démarrage rapide (macOS, sans Terminal)
+
+Une fois le dépôt cloné, deux scripts à double-cliquer dans le Finder :
+
+- **`demarrer.command`** : installe les dépendances si besoin, démarre le
+  backend et le frontend, puis ouvre automatiquement http://localhost:5173
+  dans le navigateur. Au tout premier lancement, la base de données est vide
+  (voir « Charger les données de démonstration » ci-dessous si vous en avez besoin).
+- **`arreter.command`** : arrête les deux serveurs.
+
+Au tout premier double-clic, macOS peut afficher un avertissement de
+sécurité (« développeur non identifié ») : clic droit sur le fichier →
+**Ouvrir** → confirmer. Cette étape n'est nécessaire qu'une seule fois.
+
+## Démarrage manuel (ligne de commande)
 
 ### 1. Backend (API + base SQLite)
 
@@ -58,6 +72,14 @@ npm run preview   # sert le build de production
 - **Vue Détail Projet** : informations générales, actions/sous-tâches (CRUD
   inline), affectations d'agents avec allocation %, dépendances entre projets,
   notes libres, archivage (soft delete).
+- **Historique** : journal des créations/mises à jour/archivages (projets,
+  actions, agents), filtrable, avec lien direct vers l'élément concerné.
+- **Export Excel** : export des projets (par équipe ou toutes équipes
+  confondues) depuis la Vue Synthétique.
+- **Recherche globale** : recherche instantanée sur les projets et les
+  actions depuis le menu latéral.
+- **Gestion des agents** : création, renommage, changement d'équipe,
+  activation/désactivation et suppression des membres des équipes.
 
 ## Modèle de données
 
@@ -77,12 +99,17 @@ DELETE /api/projets/:id            → archiver (soft delete)
 POST   /api/projets/:id/actions    → ajouter une action
 PATCH  /api/actions/:id            → mettre à jour une action
 DELETE /api/actions/:id            → supprimer une action
-GET    /api/agents                 → lister les agents
+GET    /api/agents                 → lister les agents (?tous=1 pour inclure les désactivés)
+POST   /api/agents                 → créer un agent
+PATCH  /api/agents/:id             → mettre à jour un agent (nom, équipe, email, actif)
+DELETE /api/agents/:id             → supprimer un agent (refusé s'il est référencé)
 POST   /api/affectations           → affecter un agent à un projet
 GET    /api/affectations/charge    → charge par agent (Vue Gantt)
 GET    /api/dependances            → gérer les dépendances (POST/DELETE)
 GET    /api/historique             → audit trail
 GET    /api/stats                  → indicateurs du dashboard
+GET    /api/recherche?q=...        → recherche globale (projets + actions)
+GET    /api/export/projets         → export Excel (?equipe=... optionnel)
 ```
 
 ## Structure du projet
@@ -98,9 +125,23 @@ NotesPO/
 └── README.md
 ```
 
-## Notes / limites connues (P1-P3)
+## Charger les données de démonstration (optionnel)
 
-- L'historique (audit trail) est enregistré en base à chaque création/mise à
-  jour/archivage, mais n'a pas encore d'écran dédié dans l'interface.
-- L'export Excel par équipe (Phase 3) n'est pas implémenté dans cette version.
-- La recherche globale (Phase 4) n'est pas implémentée.
+Par défaut, une base vide se crée toute seule au premier lancement. Pour la
+remplir avec 20 projets d'exemple répartis sur les 4 équipes :
+
+```bash
+cd backend
+npm run seed
+```
+
+## Réinitialiser les données
+
+Pour repartir sur une base vide (vos propres projets et agents), serveurs
+arrêtés (ou via `arreter.command`) :
+
+```bash
+rm -f backend/db/suivi.db backend/db/suivi.db-wal backend/db/suivi.db-shm
+```
+
+Ajoutez ensuite vos agents depuis l'écran **Agents** de l'application.
