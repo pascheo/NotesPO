@@ -6,6 +6,7 @@ const liens = [
   { to: '/kanban', label: 'Kanban', icone: '🗂️' },
   { to: '/gantt', label: 'Planning Gantt', icone: '📅' },
   { to: '/historique', label: 'Historique', icone: '🕒' },
+  { to: '/agents', label: 'Agents', icone: '👥' },
 ];
 </script>
 

@@ -49,7 +49,15 @@ export const affectationsApi = {
 };
 
 export const agentsApi = {
-  liste: (equipe?: string) => api.get<Agent[]>('/agents', { params: { equipe } }).then((r) => r.data),
+  liste: (params: { equipe?: string; tous?: boolean } = {}) =>
+    api
+      .get<Agent[]>('/agents', { params: { equipe: params.equipe, tous: params.tous ? '1' : undefined } })
+      .then((r) => r.data),
+  creer: (payload: { nom: string; equipe: string; email?: string }) =>
+    api.post<Agent>('/agents', payload).then((r) => r.data),
+  maj: (id: number, payload: Partial<Pick<Agent, 'nom' | 'equipe' | 'email' | 'actif'>>) =>
+    api.patch<Agent>(`/agents/${id}`, payload).then((r) => r.data),
+  supprimer: (id: number) => api.delete(`/agents/${id}`).then((r) => r.data),
 };
 
 export const historiqueApi = {
