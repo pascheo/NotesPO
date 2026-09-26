@@ -105,7 +105,7 @@ export interface Stats {
 
 export interface HistoriqueEntry {
   id: number;
-  entite_type: 'projet' | 'action';
+  entite_type: 'projet' | 'action' | 'agent';
   entite_id: number;
   action: 'create' | 'update' | 'delete' | 'archive';
   action_label: string;

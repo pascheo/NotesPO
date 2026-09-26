@@ -28,6 +28,11 @@ const router = createRouter({
       component: () => import('../views/VueHistorique.vue'),
     },
     {
+      path: '/agents',
+      name: 'agents',
+      component: () => import('../views/VueAgents.vue'),
+    },
+    {
       path: '/projets/:id',
       name: 'projet-detail',
       component: () => import('../views/VueDetail.vue'),
