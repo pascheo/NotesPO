@@ -1,14 +1,29 @@
 <script setup lang="ts">
 import RechercheGlobale from './RechercheGlobale.vue';
 
-const liens = [
-  { to: '/synthese', label: 'Vue Synthétique', icone: '📊' },
-  { to: '/revue-fares', label: 'Revue Fares', icone: '🗓️' },
-  { to: '/kanban', label: 'Kanban', icone: '🗂️' },
-  { to: '/gantt', label: 'Planning Gantt', icone: '📅' },
-  { to: '/taches', label: 'Tâches', icone: '✅' },
-  { to: '/historique', label: 'Historique', icone: '🕒' },
-  { to: '/agents', label: 'Agents', icone: '👥' },
+const groupes = [
+  {
+    titre: 'Suivi de projets',
+    liens: [
+      { to: '/synthese', label: 'Vue Synthétique', icone: '📊' },
+      { to: '/kanban', label: 'Kanban', icone: '🗂️' },
+      { to: '/gantt', label: 'Planning Gantt', icone: '📅' },
+    ],
+  },
+  {
+    titre: 'Fares & tâches',
+    liens: [
+      { to: '/revue-fares', label: 'Revue Fares', icone: '🗓️' },
+      { to: '/taches', label: 'Tâches', icone: '✅' },
+    ],
+  },
+  {
+    titre: 'Administration',
+    liens: [
+      { to: '/historique', label: 'Historique', icone: '🕒' },
+      { to: '/agents', label: 'Agents', icone: '👥' },
+    ],
+  },
 ];
 </script>
 
@@ -21,17 +36,24 @@ const liens = [
     <div class="border-b border-surface-border px-3 py-3">
       <RechercheGlobale />
     </div>
-    <nav class="flex-1 space-y-1 px-3 py-4">
-      <router-link
-        v-for="lien in liens"
-        :key="lien.to"
-        :to="lien.to"
-        class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-surface-card hover:text-white"
-        active-class="bg-surface-card text-white"
-      >
-        <span>{{ lien.icone }}</span>
-        <span>{{ lien.label }}</span>
-      </router-link>
+    <nav class="flex-1 space-y-5 overflow-y-auto px-3 py-4">
+      <div v-for="groupe in groupes" :key="groupe.titre">
+        <p class="mb-1.5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+          {{ groupe.titre }}
+        </p>
+        <div class="space-y-1">
+          <router-link
+            v-for="lien in groupe.liens"
+            :key="lien.to"
+            :to="lien.to"
+            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-slate-300 transition hover:bg-surface-card hover:text-white"
+            active-class="bg-surface-card text-white"
+          >
+            <span>{{ lien.icone }}</span>
+            <span>{{ lien.label }}</span>
+          </router-link>
+        </div>
+      </div>
     </nav>
     <div class="border-t border-surface-border px-5 py-4 text-xs text-slate-500">
       Sous-Direction Opérations

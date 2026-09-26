@@ -237,44 +237,58 @@ function onNotesInput(valeur: string) {
       </div>
 
       <!-- Dépendances -->
-      <div class="rounded-xl border border-surface-border bg-surface-raised p-6">
-        <h2 class="mb-4 text-sm font-semibold text-slate-200">Dépendances</h2>
-        <div class="mb-3">
-          <p class="mb-1 text-xs text-slate-500">Bloqué par</p>
-          <div v-if="projet.dependances.bloque_par.length === 0" class="text-xs text-slate-600">Aucune dépendance bloquante</div>
-          <router-link
-            v-for="d in projet.dependances.bloque_par"
-            :key="d.id"
-            :to="`/projets/${d.projet_id}`"
-            class="mb-1 block rounded-lg border border-surface-border bg-surface-card p-2 text-sm text-slate-300 hover:border-blue-500/50"
-          >
-            {{ d.nom }} <span class="text-xs text-slate-500">({{ d.etat }} · {{ d.progression_global }}%)</span>
-          </router-link>
+      <details
+        class="group rounded-xl border border-surface-border bg-surface-raised p-6"
+        :open="projet.dependances.bloque_par.length > 0 || projet.dependances.bloque.length > 0"
+      >
+        <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-200 marker:content-none">
+          <span>Dépendances</span>
+          <span class="flex items-center gap-2 text-xs font-normal text-slate-500">
+            {{ projet.dependances.bloque_par.length + projet.dependances.bloque.length }} lien(s)
+            <span class="transition group-open:rotate-180">⌄</span>
+          </span>
+        </summary>
+        <div class="mt-4">
+          <div class="mb-3">
+            <p class="mb-1 text-xs text-slate-500">Bloqué par</p>
+            <div v-if="projet.dependances.bloque_par.length === 0" class="text-xs text-slate-600">Aucune dépendance bloquante</div>
+            <router-link
+              v-for="d in projet.dependances.bloque_par"
+              :key="d.id"
+              :to="`/projets/${d.projet_id}`"
+              class="mb-1 block rounded-lg border border-surface-border bg-surface-card p-2 text-sm text-slate-300 hover:border-blue-500/50"
+            >
+              {{ d.nom }} <span class="text-xs text-slate-500">({{ d.etat }} · {{ d.progression_global }}%)</span>
+            </router-link>
+          </div>
+          <div>
+            <p class="mb-1 text-xs text-slate-500">Bloque</p>
+            <div v-if="projet.dependances.bloque.length === 0" class="text-xs text-slate-600">Ne bloque aucun projet</div>
+            <router-link
+              v-for="d in projet.dependances.bloque"
+              :key="d.id"
+              :to="`/projets/${d.projet_id}`"
+              class="mb-1 block rounded-lg border border-surface-border bg-surface-card p-2 text-sm text-slate-300 hover:border-blue-500/50"
+            >
+              {{ d.nom }} <span class="text-xs text-slate-500">({{ d.etat }} · {{ d.progression_global }}%)</span>
+            </router-link>
+          </div>
         </div>
-        <div>
-          <p class="mb-1 text-xs text-slate-500">Bloque</p>
-          <div v-if="projet.dependances.bloque.length === 0" class="text-xs text-slate-600">Ne bloque aucun projet</div>
-          <router-link
-            v-for="d in projet.dependances.bloque"
-            :key="d.id"
-            :to="`/projets/${d.projet_id}`"
-            class="mb-1 block rounded-lg border border-surface-border bg-surface-card p-2 text-sm text-slate-300 hover:border-blue-500/50"
-          >
-            {{ d.nom }} <span class="text-xs text-slate-500">({{ d.etat }} · {{ d.progression_global }}%)</span>
-          </router-link>
-        </div>
-      </div>
+      </details>
 
       <!-- Notes -->
-      <div class="rounded-xl border border-surface-border bg-surface-raised p-6">
-        <h2 class="mb-4 text-sm font-semibold text-slate-200">Notes</h2>
+      <details class="group rounded-xl border border-surface-border bg-surface-raised p-6" :open="!!projet.notes">
+        <summary class="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-slate-200 marker:content-none">
+          <span>Notes</span>
+          <span class="transition group-open:rotate-180 text-xs text-slate-500">⌄</span>
+        </summary>
         <textarea
-          class="input h-40 w-full resize-none"
+          class="input mt-4 h-40 w-full resize-none"
           placeholder="Notes libres sur le projet…"
           :value="projet.notes"
           @input="onNotesInput(($event.target as HTMLTextAreaElement).value)"
         />
-      </div>
+      </details>
     </div>
   </div>
 </template>

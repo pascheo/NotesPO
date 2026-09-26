@@ -130,11 +130,14 @@ const projetsActifs = computed(() => store.projets.filter((p) => p.etat !== 'Ter
     </section>
 
     <!-- Ajout rapide d'une action à un projet existant -->
-    <section class="mb-8">
-      <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
-        Ajouter une action à un projet existant
-      </h2>
-      <div class="rounded-xl border border-surface-border bg-surface-raised p-4">
+    <details class="group mb-8 rounded-xl border border-surface-border bg-surface-raised">
+      <summary
+        class="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-400 marker:content-none"
+      >
+        <span>+ Ajouter une action à un projet existant</span>
+        <span class="text-slate-500 transition group-open:rotate-180">⌄</span>
+      </summary>
+      <div class="border-t border-surface-border p-4">
         <form class="flex flex-wrap items-end gap-3" @submit.prevent="ajouterAction">
           <div class="min-w-[220px]">
             <label class="mb-1 block text-xs text-slate-500">Projet *</label>
@@ -163,14 +166,14 @@ const projetsActifs = computed(() => store.projets.filter((p) => p.etat !== 'Ter
         <p v-if="ajoutActionErreur" class="mt-2 text-xs text-red-400">{{ ajoutActionErreur }}</p>
         <p v-if="ajoutActionSucces" class="mt-2 text-xs text-emerald-400">Action ajoutée avec succès.</p>
       </div>
-    </section>
+    </details>
 
     <!-- Vrac de micro-tâches -->
     <section>
       <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
         Vrac / micro-sujets (vérifier ceci, appeler untel…)
       </h2>
-      <TachesPanel />
+      <TachesPanel compact />
     </section>
 
     <ModalNouveauProjet
