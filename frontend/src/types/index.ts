@@ -81,16 +81,31 @@ export interface ProjetDetail extends Projet {
 export interface Agent {
   id: number;
   nom: string;
-  equipe: Equipe;
+  // Champ libre : les 4 équipes techniques, ou une équipe personnalisée
+  // (ex. "Direction" pour un agent hors des 4 équipes techniques).
+  equipe: string;
   email: string;
   actif: 0 | 1;
 }
 
 export interface ChargeAgent {
   agent: string;
-  equipe: Equipe;
+  equipe: string;
   projets: { projet_id: number; nom: string; allocation: number; role: string }[];
   allocation_totale: number;
+}
+
+export interface Tache {
+  id: number;
+  description: string;
+  assignee: string;
+  notes: string;
+  date_ouverture: string;
+  date_prevue_fin: string | null;
+  etat: Etat;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Stats {
@@ -105,7 +120,7 @@ export interface Stats {
 
 export interface HistoriqueEntry {
   id: number;
-  entite_type: 'projet' | 'action' | 'agent';
+  entite_type: 'projet' | 'action' | 'agent' | 'tache';
   entite_id: number;
   action: 'create' | 'update' | 'delete' | 'archive';
   action_label: string;

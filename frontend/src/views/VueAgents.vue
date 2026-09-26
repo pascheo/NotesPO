@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import { agentsApi } from '../api/client';
-import { EQUIPES, type Agent, type Equipe } from '../types';
-import TagEquipe from '../components/TagEquipe.vue';
+import { EQUIPES, type Agent } from '../types';
+
+const EQUIPES_SUGGEREES = [...EQUIPES, 'Direction'];
 
 const agents = ref<Agent[]>([]);
 const chargement = ref(true);
 const erreur = ref<string | null>(null);
-const filtreEquipe = ref<Equipe | ''>('');
+const filtreEquipe = ref<string>('');
 const filtreStatut = ref<'actifs' | 'tous'>('actifs');
 
-const nouvelAgent = reactive({ nom: '', equipe: 'Infrastructure' as Equipe, email: '' });
+const nouvelAgent = reactive({ nom: '', equipe: 'Infrastructure', email: '' });
 const creationEnCours = ref(false);
 
 async function charger() {
@@ -74,6 +75,11 @@ async function supprimerAgent(agent: Agent) {
 const agentsTries = computed(() =>
   [...agents.value].sort((a, b) => b.actif - a.actif || a.nom.localeCompare(b.nom))
 );
+
+const equipesConnues = computed(() => {
+  const dynamiques = new Set(agents.value.map((a) => a.equipe));
+  return [...new Set([...EQUIPES_SUGGEREES, ...dynamiques])];
+});
 </script>
 
 <template>
@@ -96,9 +102,13 @@ const agentsTries = computed(() =>
         </div>
         <div>
           <label class="mb-1 block text-xs text-slate-500">Équipe *</label>
-          <select v-model="nouvelAgent.equipe" class="input w-48">
-            <option v-for="e in EQUIPES" :key="e" :value="e">{{ e }}</option>
-          </select>
+          <input
+            v-model="nouvelAgent.equipe"
+            list="equipes-suggerees"
+            type="text"
+            placeholder="Infrastructure, Direction…"
+            class="input w-48"
+          />
         </div>
         <div>
           <label class="mb-1 block text-xs text-slate-500">Email</label>
@@ -113,7 +123,7 @@ const agentsTries = computed(() =>
     <div class="mb-4 flex flex-wrap gap-3">
       <select v-model="filtreEquipe" class="filtre" @change="charger">
         <option value="">Toutes les équipes</option>
-        <option v-for="e in EQUIPES" :key="e" :value="e">{{ e }}</option>
+        <option v-for="e in equipesConnues" :key="e" :value="e">{{ e }}</option>
       </select>
       <select v-model="filtreStatut" class="filtre" @change="charger">
         <option value="actifs">Agents actifs</option>
@@ -149,13 +159,13 @@ const agentsTries = computed(() =>
               />
             </td>
             <td class="px-4 py-3">
-              <select
+              <input
+                type="text"
+                list="equipes-suggerees"
                 class="input-inline"
                 :value="a.equipe"
-                @change="majAgent(a, { equipe: ($event.target as HTMLSelectElement).value as Equipe })"
-              >
-                <option v-for="e in EQUIPES" :key="e" :value="e">{{ e }}</option>
-              </select>
+                @change="majAgent(a, { equipe: ($event.target as HTMLInputElement).value })"
+              />
             </td>
             <td class="px-4 py-3">
               <input
@@ -186,6 +196,10 @@ const agentsTries = computed(() =>
         </tbody>
       </table>
     </div>
+
+    <datalist id="equipes-suggerees">
+      <option v-for="e in EQUIPES_SUGGEREES" :key="e" :value="e" />
+    </datalist>
   </div>
 </template>
 

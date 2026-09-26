@@ -31,6 +31,15 @@ function enrichir(rows) {
       .forEach((a) => agents.set(a.id, a.nom));
   }
 
+  const tacheIds = [...new Set(rows.filter((r) => r.entite_type === 'tache').map((r) => r.entite_id))];
+  const taches = new Map();
+  if (tacheIds.length > 0) {
+    const placeholders = tacheIds.map(() => '?').join(',');
+    db.prepare(`SELECT id, description FROM taches WHERE id IN (${placeholders})`)
+      .all(...tacheIds)
+      .forEach((t) => taches.set(t.id, t.description));
+  }
+
   const actions = new Map();
   if (actionIds.length > 0) {
     const placeholders = actionIds.map(() => '?').join(',');
@@ -55,6 +64,8 @@ function enrichir(rows) {
       projet_id = a?.projet_id ?? null;
     } else if (r.entite_type === 'agent') {
       libelle = agents.get(r.entite_id) || r.champs_modifies?.nom?.[1] || `Agent #${r.entite_id}`;
+    } else if (r.entite_type === 'tache') {
+      libelle = taches.get(r.entite_id) || r.champs_modifies?.description || `Tâche #${r.entite_id}`;
     }
     return {
       ...r,

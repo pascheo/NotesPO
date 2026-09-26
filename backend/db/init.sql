@@ -62,6 +62,20 @@ CREATE TABLE IF NOT EXISTS dependances (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Tâches libres / TODO (non rattachées à un projet, assignables à un agent)
+CREATE TABLE IF NOT EXISTS taches (
+  id INTEGER PRIMARY KEY,
+  description TEXT NOT NULL,
+  assignee TEXT,
+  notes TEXT,
+  date_ouverture DATE DEFAULT (date('now')),
+  date_prevue_fin DATE,
+  etat TEXT DEFAULT 'À faire',
+  created_by TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Historique (audit trail)
 CREATE TABLE IF NOT EXISTS historique (
   id INTEGER PRIMARY KEY,
@@ -80,3 +94,5 @@ CREATE INDEX IF NOT EXISTS idx_affectations_projet ON affectations(projet_id);
 CREATE INDEX IF NOT EXISTS idx_dependances_source ON dependances(projet_source);
 CREATE INDEX IF NOT EXISTS idx_dependances_cible ON dependances(projet_cible);
 CREATE INDEX IF NOT EXISTS idx_historique_entite ON historique(entite_type, entite_id);
+CREATE INDEX IF NOT EXISTS idx_taches_assignee ON taches(assignee);
+CREATE INDEX IF NOT EXISTS idx_taches_etat ON taches(etat);
