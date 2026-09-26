@@ -10,6 +10,8 @@ const agentsRouter = require('./routes/agents');
 const historiqueRouter = require('./routes/historique');
 const dependancesRouter = require('./routes/dependances');
 const statsRouter = require('./routes/stats');
+const rechercheRouter = require('./routes/recherche');
+const exportRouter = require('./routes/export');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -34,6 +36,8 @@ app.use('/api/agents', agentsRouter);
 app.use('/api/historique', historiqueRouter);
 app.use('/api/dependances', dependancesRouter);
 app.use('/api/stats', statsRouter);
+app.use('/api/recherche', rechercheRouter);
+app.use('/api/export', exportRouter);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Route introuvable' });

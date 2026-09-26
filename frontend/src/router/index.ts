@@ -23,6 +23,11 @@ const router = createRouter({
       component: () => import('../views/VueGantt.vue'),
     },
     {
+      path: '/historique',
+      name: 'historique',
+      component: () => import('../views/VueHistorique.vue'),
+    },
+    {
       path: '/projets/:id',
       name: 'projet-detail',
       component: () => import('../views/VueDetail.vue'),
