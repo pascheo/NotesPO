@@ -4,6 +4,7 @@ import { agentsApi } from '../api/client';
 import { EQUIPES, type Agent } from '../types';
 
 const EQUIPES_SUGGEREES = [...EQUIPES, 'Direction'];
+const AUTRE = '__autre__';
 
 const agents = ref<Agent[]>([]);
 const chargement = ref(true);
@@ -12,7 +13,30 @@ const filtreEquipe = ref<string>('');
 const filtreStatut = ref<'actifs' | 'tous'>('actifs');
 
 const nouvelAgent = reactive({ nom: '', equipe: 'Infrastructure', email: '' });
+const nouvelleEquipePersonnalisee = ref(false);
 const creationEnCours = ref(false);
+
+function onChangeSelectionEquipe(valeur: string) {
+  if (valeur === AUTRE) {
+    nouvelleEquipePersonnalisee.value = true;
+    nouvelAgent.equipe = '';
+  } else {
+    nouvelleEquipePersonnalisee.value = false;
+    nouvelAgent.equipe = valeur;
+  }
+}
+
+// Lignes du tableau actuellement en saisie libre pour l'équipe (agent.id -> true)
+const lignesEquipePersonnalisee = reactive<Record<number, boolean>>({});
+
+function onChangeSelectionEquipeLigne(agent: Agent, valeur: string) {
+  if (valeur === AUTRE) {
+    lignesEquipePersonnalisee[agent.id] = true;
+  } else {
+    delete lignesEquipePersonnalisee[agent.id];
+    majAgent(agent, { equipe: valeur });
+  }
+}
 
 async function charger() {
   chargement.value = true;
@@ -39,6 +63,8 @@ async function creerAgent() {
     await agentsApi.creer({ ...nouvelAgent, nom: nouvelAgent.nom.trim() });
     nouvelAgent.nom = '';
     nouvelAgent.email = '';
+    nouvelAgent.equipe = 'Infrastructure';
+    nouvelleEquipePersonnalisee.value = false;
     await charger();
   } catch (e: any) {
     erreur.value = e?.response?.data?.error || "Impossible de créer l'agent.";
@@ -102,12 +128,20 @@ const equipesConnues = computed(() => {
         </div>
         <div>
           <label class="mb-1 block text-xs text-slate-500">Équipe *</label>
-          <input
-            v-model="nouvelAgent.equipe"
-            list="equipes-suggerees"
-            type="text"
-            placeholder="Infrastructure, Direction…"
+          <select
+            :value="nouvelleEquipePersonnalisee ? AUTRE : nouvelAgent.equipe"
             class="input w-48"
+            @change="onChangeSelectionEquipe(($event.target as HTMLSelectElement).value)"
+          >
+            <option v-for="e in equipesConnues" :key="e" :value="e">{{ e }}</option>
+            <option :value="AUTRE">+ Autre équipe…</option>
+          </select>
+          <input
+            v-if="nouvelleEquipePersonnalisee"
+            v-model="nouvelAgent.equipe"
+            type="text"
+            placeholder="Nom de la nouvelle équipe"
+            class="input mt-2 w-48"
           />
         </div>
         <div>
@@ -159,12 +193,22 @@ const equipesConnues = computed(() => {
               />
             </td>
             <td class="px-4 py-3">
-              <input
-                type="text"
-                list="equipes-suggerees"
+              <select
+                v-if="!lignesEquipePersonnalisee[a.id]"
                 class="input-inline"
                 :value="a.equipe"
-                @change="majAgent(a, { equipe: ($event.target as HTMLInputElement).value })"
+                @change="onChangeSelectionEquipeLigne(a, ($event.target as HTMLSelectElement).value)"
+              >
+                <option v-for="e in equipesConnues" :key="e" :value="e">{{ e }}</option>
+                <option :value="AUTRE">+ Autre équipe…</option>
+              </select>
+              <input
+                v-else
+                type="text"
+                class="input-inline"
+                :value="a.equipe"
+                placeholder="Nom de la nouvelle équipe"
+                @change="majAgent(a, { equipe: ($event.target as HTMLInputElement).value }); delete lignesEquipePersonnalisee[a.id]"
               />
             </td>
             <td class="px-4 py-3">
@@ -196,10 +240,6 @@ const equipesConnues = computed(() => {
         </tbody>
       </table>
     </div>
-
-    <datalist id="equipes-suggerees">
-      <option v-for="e in EQUIPES_SUGGEREES" :key="e" :value="e" />
-    </datalist>
   </div>
 </template>
 
