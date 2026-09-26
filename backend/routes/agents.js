@@ -1,5 +1,5 @@
 const express = require('express');
-const { db, EQUIPES, logHistorique } = require('../db/database');
+const { db, logHistorique } = require('../db/database');
 
 const router = express.Router();
 
@@ -15,7 +15,8 @@ function compterReferences(nom) {
   const responsable = db
     .prepare('SELECT COUNT(*) AS n FROM projets WHERE responsable = ?')
     .get(nom).n;
-  return affectations + actions + responsable;
+  const taches = db.prepare('SELECT COUNT(*) AS n FROM taches WHERE assignee = ?').get(nom).n;
+  return affectations + actions + responsable + taches;
 }
 
 // GET /api/agents - lister les agents (actifs par défaut, ?tous=1 pour tout voir)
@@ -38,7 +39,7 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
   const { nom, equipe, email = '' } = req.body;
   if (!nom || !nom.trim()) return res.status(400).json({ error: 'Le nom est requis' });
-  if (!EQUIPES.includes(equipe)) return res.status(400).json({ error: 'Équipe invalide' });
+  if (!equipe || !String(equipe).trim()) return res.status(400).json({ error: "L'équipe est requise" });
   try {
     const info = db
       .prepare('INSERT INTO agents (nom, equipe, email) VALUES (?, ?, ?)')
@@ -55,12 +56,9 @@ router.patch('/:id', (req, res) => {
   if (!agent) return res.status(404).json({ error: 'Agent introuvable' });
 
   const { nom, equipe, email, actif } = req.body;
-  if (equipe && !EQUIPES.includes(equipe)) {
-    return res.status(400).json({ error: 'Équipe invalide' });
-  }
 
   const nouveauNom = nom && nom.trim() ? nom.trim() : agent.nom;
-  const nouvelleEquipe = equipe || agent.equipe;
+  const nouvelleEquipe = equipe && String(equipe).trim() ? equipe : agent.equipe;
   const nouvelEmail = email !== undefined ? email : agent.email;
   const nouvelActif = actif !== undefined ? (actif ? 1 : 0) : agent.actif;
 
@@ -70,6 +68,7 @@ router.patch('/:id', (req, res) => {
       db.prepare('UPDATE projets SET responsable = ? WHERE responsable = ?').run(nouveauNom, agent.nom);
       db.prepare('UPDATE actions SET assignee = ? WHERE assignee = ?').run(nouveauNom, agent.nom);
       db.prepare('UPDATE affectations SET agent = ? WHERE agent = ?').run(nouveauNom, agent.nom);
+      db.prepare('UPDATE taches SET assignee = ? WHERE assignee = ?').run(nouveauNom, agent.nom);
     }
     db.prepare(
       'UPDATE agents SET nom = ?, equipe = ?, email = ?, actif = ? WHERE id = ?'

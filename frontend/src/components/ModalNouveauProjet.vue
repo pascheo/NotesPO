@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
-import { EQUIPES, PRIORITES, type Equipe, type Priorite } from '../types';
-import { projetsApi } from '../api/client';
+import { onMounted, reactive, ref } from 'vue';
+import { EQUIPES, PRIORITES, type Agent, type Equipe, type Priorite } from '../types';
+import { agentsApi, projetsApi } from '../api/client';
 
+const props = withDefaults(
+  defineProps<{ createdByDefault?: string; responsableDefaut?: string }>(),
+  { createdByDefault: 'DSI', responsableDefaut: '' }
+);
 const emit = defineEmits<{ close: []; created: [] }>();
+
+const agents = ref<Agent[]>([]);
+onMounted(async () => {
+  agents.value = await agentsApi.liste();
+});
 
 const form = reactive({
   nom: '',
@@ -12,7 +21,7 @@ const form = reactive({
   date_debut: '',
   date_limite: '',
   priorite: 'Normale' as Priorite,
-  responsable: '',
+  responsable: props.responsableDefaut,
 });
 
 const erreur = ref<string | null>(null);
@@ -26,7 +35,7 @@ async function soumettre() {
   }
   envoi.value = true;
   try {
-    await projetsApi.creer({ ...form });
+    await projetsApi.creer({ ...form, created_by: props.createdByDefault });
     emit('created');
     emit('close');
   } catch (e) {
@@ -76,7 +85,16 @@ async function soumettre() {
         </div>
         <div>
           <label class="mb-1 block text-xs text-slate-400">Responsable</label>
-          <input v-model="form.responsable" type="text" class="input" placeholder="Nom de l'agent" />
+          <select v-model="form.responsable" class="input">
+            <option value="">Non assigné</option>
+            <option
+              v-if="form.responsable && !agents.some((a) => a.nom === form.responsable)"
+              :value="form.responsable"
+            >
+              {{ form.responsable }}
+            </option>
+            <option v-for="a in agents" :key="a.id" :value="a.nom">{{ a.nom }}</option>
+          </select>
         </div>
         <div>
           <label class="mb-1 block text-xs text-slate-400">Description</label>

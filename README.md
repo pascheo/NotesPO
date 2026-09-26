@@ -78,15 +78,25 @@ npm run preview   # sert le build de production
   confondues) depuis la Vue Synthétique.
 - **Recherche globale** : recherche instantanée sur les projets et les
   actions depuis le menu latéral.
-- **Gestion des agents** : création, renommage, changement d'équipe,
+- **Gestion des agents** : création, renommage, changement d'équipe (libre,
+  ex. « Direction » pour un agent hors des 4 équipes techniques),
   activation/désactivation et suppression des membres des équipes.
+- **Tâches** : micro-tâches libres assignables à un agent, non rattachées à
+  un projet (sujet, notes libres, date d'ouverture, date prévue de fin
+  modifiable, état).
+- **Revue Fares** : écran dédié au point hebdomadaire Pascal Olivier / Fares
+  Tabet — liste des projets en cours à questionner, ajout rapide d'un
+  nouveau projet (créateur : Pascal Olivier) ou d'une action sur un projet
+  existant (assignable à Pascal Olivier ou tout autre agent), et panneau de
+  micro-sujets en vrac (même liste que l'écran Tâches).
 
 ## Modèle de données
 
 Le schéma SQLite (`backend/db/init.sql`) définit les tables `projets`,
-`actions`, `affectations`, `dependances`, `historique` (audit trail) et
-`agents`. L'état **« En retard »** n'est jamais stocké directement : il est
-recalculé à la volée dès que la date limite d'un projet est dépassée.
+`actions`, `affectations`, `dependances`, `historique` (audit trail),
+`agents` et `taches` (micro-tâches libres). L'état **« En retard »** n'est
+jamais stocké directement : il est recalculé à la volée dès que la date
+limite d'un projet est dépassée.
 
 ## API REST (résumé)
 
@@ -110,6 +120,10 @@ GET    /api/historique             → audit trail
 GET    /api/stats                  → indicateurs du dashboard
 GET    /api/recherche?q=...        → recherche globale (projets + actions)
 GET    /api/export/projets         → export Excel (?equipe=... optionnel)
+GET    /api/taches                 → lister les tâches (filtres: assignee, etat)
+POST   /api/taches                 → créer une tâche libre
+PATCH  /api/taches/:id             → mettre à jour une tâche
+DELETE /api/taches/:id             → supprimer une tâche
 ```
 
 ## Structure du projet

@@ -3,8 +3,10 @@ import RechercheGlobale from './RechercheGlobale.vue';
 
 const liens = [
   { to: '/synthese', label: 'Vue Synthétique', icone: '📊' },
+  { to: '/revue-fares', label: 'Revue Fares', icone: '🗓️' },
   { to: '/kanban', label: 'Kanban', icone: '🗂️' },
   { to: '/gantt', label: 'Planning Gantt', icone: '📅' },
+  { to: '/taches', label: 'Tâches', icone: '✅' },
   { to: '/historique', label: 'Historique', icone: '🕒' },
   { to: '/agents', label: 'Agents', icone: '👥' },
 ];

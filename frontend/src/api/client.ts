@@ -9,6 +9,7 @@ import type {
   ProjetDetail,
   RechercheResultats,
   Stats,
+  Tache,
 } from '../types';
 
 const api = axios.create({ baseURL: '/api' });
@@ -99,6 +100,15 @@ export const exportApi = {
     lien.remove();
     URL.revokeObjectURL(url);
   },
+};
+
+export const tachesApi = {
+  liste: (params: { assignee?: string; etat?: string } = {}) =>
+    api.get<Tache[]>('/taches', { params }).then((r) => r.data),
+  creer: (payload: Partial<Tache>) => api.post<Tache>('/taches', payload).then((r) => r.data),
+  maj: (id: number, payload: Partial<Tache>) =>
+    api.patch<Tache>(`/taches/${id}`, payload).then((r) => r.data),
+  supprimer: (id: number) => api.delete(`/taches/${id}`).then((r) => r.data),
 };
 
 export default api;

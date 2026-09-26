@@ -7,7 +7,7 @@ import type { HistoriqueEntry } from '../types';
 const router = useRouter();
 const entrees = ref<HistoriqueEntry[]>([]);
 const chargement = ref(true);
-const filtreType = ref<'' | 'projet' | 'action' | 'agent'>('');
+const filtreType = ref<'' | 'projet' | 'action' | 'agent' | 'tache'>('');
 const filtreAction = ref<'' | 'create' | 'update' | 'delete' | 'archive'>('');
 
 async function charger() {
@@ -65,6 +65,7 @@ function formatDateHeure(iso: string): string {
         <option value="projet">Projets</option>
         <option value="action">Actions / sous-tâches</option>
         <option value="agent">Agents</option>
+        <option value="tache">Tâches</option>
       </select>
       <select v-model="filtreAction" class="filtre">
         <option value="">Toutes les opérations</option>
